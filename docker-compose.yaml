@@ -1,0 +1,47 @@
+version: '3'
+
+services:
+
+  application:
+    image: 'eclipse-temurin:17-jdk-alpine'
+    container_name: ${SPRING_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${SPRING_HOST}:${SPRING_PORT}:${SPRING_CONTAINER_PORT}
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - db
+    environment:
+      - SPRING_HOST=${SPRING_HOST}
+      - SPRING_PORT=${SPRING_PORT}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://${POSTGRES_CONTAINER_NAME}:${POSTGRES_PORT}/${POSTGRES_DB}
+      - SPRING_DATASOURCE_DATABASE=${SPRING_DATASOURCE_DATABASE}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME}
+      - SPRING_DATASOURCE_PASSWORD=${SPRING_DATASOURCE_PASSWORD}
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=${SPRING_JPA_HIBERNATE_DDL_AUTO}
+          
+  db:
+    image: 'postgres:15.4'
+    container_name: ${POSTGRES_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${POSTGRES_HOST}:${POSTGRES_PORT}:${POSTGRES_CONTAINER_PORT}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+
+  adminer:
+    image: adminer
+    container_name: ${ADMINER_CONTAINER_NAME}
+    restart: always
+    ports:
+      - ${ADMINER_HOST}:${ADMINER_PORT}:${ADMINER_CONTAINER_PORT}
+
+volumes:
+  pgdata:

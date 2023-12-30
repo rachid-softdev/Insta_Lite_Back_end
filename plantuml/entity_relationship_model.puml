@@ -1,0 +1,46 @@
+@startuml Model entité-association Insta Lite
+!define ENTITY class
+!define ENDENTITY end class
+!define COLLECTION "{ordered}List"
+
+package "Entities" {
+  
+  ENTITY UserEntity << (E, #FF7700) >> {
+    id: Long
+    createdAt: Instant
+    updatedAt: Instant
+    publicId: String
+    firstname: String
+    lastname: String
+    email: String
+    password: String
+    role: String
+  }
+  UserEntity "1" --> "*" TokenEntity : tokens
+  UserEntity "1" --> "*" ImageEntity : uploadedImages
+
+  ENTITY TokenEntity << (E, #FF7700) >> {
+    id: Long
+    createdAt: Instant
+    updatedAt: Instant
+    publicId: String
+    token: String
+    tokenType: TokenType
+  }
+  TokenEntity "*" --> "1" UserEntity : user
+
+  ENTITY ImageEntity << (E, #FF7700) >> {
+    id: Long
+    createdAt: Instant
+    updatedAt: Instant
+    publicId: String
+    publishedAt: Instant
+    filePath: String
+    title: String
+    description: String
+    visibility: EVisibility
+  }
+  ImageEntity "*" --> "1" UserEntity : author
+
+}
+@enduml

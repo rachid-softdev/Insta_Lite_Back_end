@@ -1,0 +1,307 @@
+@startuml Insta-Lite Diagramme de classes simplifié
+
+package fr.instalite.authentication {
+    class AuthenticationController
+    class AuthenticationException
+    class AuthenticationRequest {
+		-email: String 
+		-password: String
+	}
+    class AuthenticationResponse
+    class AuthenticationService
+    class RegisterRequest {
+		-firstname: String 
+		-lastname: String 
+		-email: String 
+		-password: String 
+		-role: String 
+	}
+}
+
+package fr.instalite.common {
+    class EVisiblity
+    class FileUtil
+    class RandomIDGenerator
+}
+
+package fr.instalite.configuration {
+    class AntiXSSConfiguration
+    class ApplicationConfiguration
+    class JwtAuthenticationFilter
+    class JwtService
+    class LogoutService
+    class OpenApiConfiguration
+    class SecurityConfiguration
+}
+
+package fr.instalite.configuration.exception {
+    class ApiErrorResponse {
+		-guid: String
+		-errorCode: String
+		-message: String
+		-statusCode: Integer
+		-statusName: String
+		-path: String
+		-method: String
+		-timestamp: LocalDateTime
+		-errors: List<ValidationError>
+	}
+    class ApplicationException
+    class ApplicationExceptionHandler
+    class ValidationError {
+		-className: String 
+		-field: String 
+		-violationMessage: String 
+	}
+}
+
+package fr.instalite.media.image {
+    class BaseImageResponse {
+		-createdAt: Instant
+		-updatedAt: Instant
+		-publicId: String
+		-publishedAt: Instant
+		-fileUrl: String
+		-title: String
+		-description: String
+		-visibility: EVisibility
+	}
+    class EImageType {
+		JPEG,
+		PNG,
+		JPG,
+		GIF
+	}
+    class ImageAlreadyExistsException
+    class ImageController
+    class ImageCreateRequest {
+		-title: String
+		-description: String
+		-file: MultipartFile
+		-visibility: String
+		-author: BaseUserResponse
+	}
+    class ImageEntity {
+		-id: Long
+		-createdAt: Instant
+		-updatedAt: Instant
+		-publicId: String
+		-publishedAt: Instant
+		-filePath: String
+		-file: MultipartFile
+		-fileUrl: String
+		-title: String
+		-description: String
+		-visibility: EVisibility
+		-author: UserEntity
+	}
+    class ImageException
+    interface ImageMapper
+    class ImageMapperImpl
+    class ImageNotAcceptedException
+    class ImageNotFoundException
+    class ImageRepository
+    class ImageResponse {
+		-createdAt: Instant
+		-updatedAt: Instant
+		-publicId: String
+		-publishedAt: Instant
+		-fileUrl: String
+		-title: String
+		-description: String
+		-visibility: EVisibility
+		-author: BaseUserResponse
+	}
+    class ImageService
+    class ImageUpdateRequest {
+		-publicId: String
+		-publishedAt: Instant
+		-title: String
+		-description: String
+		-file: MultipartFile
+		-visibility: String
+		-author: BaseUserResponse
+	}
+}
+
+package fr.instalite.token { 
+    class TokenEntity {
+		-id: Long
+		-createdAt: Instant;
+		-updatedAt: Instant;
+		-publicId: String
+		-token: String
+		-tokenType: TokenType
+		-revoked: boolean
+		-expired: boolean
+		-user: UserEntity
+	}
+    class TokenException
+    interface TokenMapper
+    class TokenMapperImpl
+    class TokenNotFoundException
+    class TokenRepository
+    class TokenResponse {
+		-tokenType: TokenType
+		-revoked: boolean
+		-expired: boolean
+		-user: UserEntity
+	}
+    class TokenService
+    enum TokenType {
+		BEARER
+	}
+}
+
+package fr.instalite.user {
+    class BaseUserResponse {
+		-createdAt: Instant
+		-updatedAt: Instant
+		-publicId:  String
+		-firstname:  String
+		-lastname:  String
+		-email:  String
+		-role:  String
+	}
+    class EPermission {
+		ADMIN_READ,
+		ADMIN_UPDATE,
+		ADMIN_CREATE,
+		ADMIN_DELETE,
+		USER_READ,
+		USER_UPDATE,
+		USER_CREATE,
+		USER_DELETE
+	}
+    enum ERole {
+		ADMIN,
+		USER
+	}
+    class InvalidPasswordException
+    class UserChangePasswordRequest {
+		-publicId:  String
+		-currentPassword: String
+		-newPassword: String
+		-confirmPassword: String
+	}
+    class UserController
+    class UserCreateRequest
+    class UserEntity {
+		-id: Long
+		-publicId: string
+		-firstname: String
+		-lastname: String
+		-email: String
+		-password: String
+		-role: ERole
+		-tokens: List<TokenEntity>
+		-uploadedImages: List<ImageEntity> 
+	}
+    class UserException
+    interface UserMapper
+    class UserMapperImpl
+    class UserNotFoundException
+    class UserProfileUpdateRequest
+    class UserRepository
+    class UserResponse
+    class UserService
+    class UserUpdateRequest {
+		-publicId: string
+		-firstname: String
+		-lastname: String
+		-email: String
+		-password: String
+		-role: String
+	}
+}
+
+package fr.instalite {
+    class InstaliteApplication
+    class ServletInitializer
+}
+
+AuthenticationController --> AuthenticationService : uses
+AuthenticationException --> ApplicationException
+AuthenticationResponse ..> BaseUserResponse
+AuthenticationService --> JwtService
+AuthenticationService --> UserService
+AuthenticationService --> UserMapper
+AuthenticationService --> UserMapperImpl
+AuthenticationService ..> RandomIDGenerator
+AuthenticationService ..> TokenService
+AuthenticationService ..> JwtService
+AuthenticationService ..> TokenEntity
+AuthenticationService ..> HttpServletRequest
+AuthenticationService ..> HttpServletResponse
+AuthenticationService ..> RegisterRequest
+AuthenticationService ..> AuthenticationException
+AuthenticationService ..> ApplicationException : throws
+
+BaseImageResponse o-- EVisibility
+ImageException <|-- ImageAlreadyExistsException
+ImageController --> ImageService : uses
+ImageController ..> ImageCreateRequest
+ImageController ..> ImageUpdateRequest
+ImageController ..> ImageResponse
+ImageCreateRequest o-- BaseUserResponse
+ImageEntity o-- EVisibility
+ImageEntity o-- UserEntity
+ApplicationException <|-- ImageException
+ImageMapper ..> ImageCreateRequest
+ImageMapper ..> ImageUpdateRequest
+ImageMapper ..> ImageEntity
+ImageMapper ..> ImageResponse
+ImageMapperImpl ..> ImageCreateRequest
+ImageMapperImpl ..> ImageUpdateRequest
+ImageMapperImpl ..> ImageEntity
+ImageMapperImpl ..> ImageResponse
+ImageException <|-- ImageNotAcceptedException
+ImageException <|-- ImageNotFoundException
+ImageResponse o-- BaseUserResponse
+ImageService --> ImageRepository
+ImageService --> UserRepository
+ImageService --> ImageMapper
+ImageService --> ImageMapperImpl
+ImageService ..> ImageCreateRequest
+ImageService ..> ImageUpdateRequest
+ImageService ..> ImageEntity
+ImageService ..> ImageResponse
+ImageUpdateRequest o-- BaseUserResponse
+
+TokenEntity --> UserEntity
+ApplicationException <|-- TokenException
+TokenMapper ..> TokenEntity
+TokenMapper ..> TokenResponse
+TokenMapperImpl ..> TokenEntity
+TokenMapperImpl ..> TokenResponse
+TokenException <|-- TokenNotFoundException
+TokenResponse o-- UserEntity
+TokenService --> TokenRepository
+TokenService --> TokenMapper
+TokenService --> TokenMapperImpl
+
+ApplicationException <|-- InvalidPasswordException
+UserController --> UserService : uses
+UserController --> UserMapper : uses
+UserEntity "1" --> "*" TokenEntity : contains
+UserEntity "1" --> "*" ImageEntity : uploaded
+UserException <|-- ApplicationException 
+UserMapper ..> UserCreateRequest
+UserMapper ..> UserUpdateRequest
+UserMapper ..> UserEntity
+UserMapper ..> BaseUserResponse
+UserMapper ..> UserResponse
+UserMapperImpl ..> UserCreateRequest
+UserMapperImpl ..> UserUpdateRequest
+UserMapperImpl ..> UserEntity
+UserMapperImpl ..> BaseUserResponse
+UserMapperImpl ..> UserResponse
+UserNotFoundException <|-- UserException 
+UserResponse <|-- BaseUserResponse 
+UserService --> UserRepository
+UserService --> UserMapper
+
+ServletInitializer <|-- SpringBootServletInitializer
+ServletInitializer ..> InstaliteApplication
+
+@enduml
